@@ -8,26 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1f2937;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #4f46e5;
-            border-radius: 4px;
-        }
-
-            ::-webkit-scrollbar-thumb:hover {
-                background: #4338ca;
-            }
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4338ca; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -40,9 +25,15 @@
                 <h1 class="text-2xl font-bold text-indigo-400 mb-10">Nightlife Staff</h1>
                 <ul>
                     <li class="mb-4">
-                        <a href="#" class="flex items-center p-2 text-base font-normal text-white rounded-lg bg-gray-700">
-                            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                        <a href="dashboard.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg bg-gray-700">
+                            <i data-lucide="home" class="w-6 h-6"></i>
                             <span class="ml-3">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="admin.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                            <span class="ml-3">Admin</span>
                         </a>
                     </li>
                     <li class="mb-4">
@@ -72,6 +63,7 @@
                 </button>
             </div>
         </nav>
+
         <!-- Main Content -->
         <main class="flex-1 p-10 overflow-auto">
             <div id="loader" class="flex justify-center items-center h-full">
@@ -128,7 +120,7 @@
         const mainContent = document.getElementById('main-content');
         const staffRosterTable = document.getElementById('staff-roster-table');
         const logoutBtn = document.getElementById('logout-btn');
-
+        
         let presenceInterval = null;
 
         // --- Authentication & Presence ---
@@ -174,18 +166,18 @@
             onSnapshot(usersRef, (snapshot) => {
                 staffRosterTable.innerHTML = '';
                 if (snapshot.empty) {
-                    staffRosterTable.innerHTML = `<tr><td colspan="3" class="text-center py-4">No staff members found.</td></tr>`;
+                     staffRosterTable.innerHTML = `<tr><td colspan="3" class="text-center py-4">No staff members found.</td></tr>`;
                 } else {
                     snapshot.forEach(doc => {
                         const staff = doc.data();
                         const joinDate = staff.createdAt?.seconds ? new Date(staff.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
                         const row = `
-                                <tr class="bg-gray-800 border-b border-gray-700">
-                                    <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${staff.email}</td>
-                                    <td class="px-6 py-4">${staff.role}</td>
-                                    <td class="px-6 py-4">${joinDate}</td>
-                                </tr>
-                            `;
+                            <tr class="bg-gray-800 border-b border-gray-700">
+                                <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${staff.email}</td>
+                                <td class="px-6 py-4">${staff.role}</td>
+                                <td class="px-6 py-4">${joinDate}</td>
+                            </tr>
+                        `;
                         staffRosterTable.innerHTML += row;
                     });
                 }

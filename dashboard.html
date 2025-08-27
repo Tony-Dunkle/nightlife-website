@@ -203,8 +203,35 @@
                         </div>
                         <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
                             <h3 class="text-xl font-semibold mb-4">Staff Roles & Hierarchy</h3>
-                            <p class="text-gray-400">A brief overview of the staff structure.</p>
-                            <!-- Detailed roles can be added here if needed -->
+                            <div class="space-y-6 text-gray-300 max-h-[60vh] overflow-y-auto pr-3">
+                                <div>
+                                    <h4 class="text-lg font-bold text-indigo-400">👑 Executive & Development Team</h4>
+                                    <p class="mt-2"><strong>Director:</strong> The founder and highest authority, overseeing all aspects of the community and making final decisions.</p>
+                                    <p class="mt-1"><strong>Lead Developer:</strong> Manages all development work, implements new features, and ensures the city runs smoothly.</p>
+                                    <p class="mt-1"><strong>Developer:</strong> Assists with technical aspects, bug fixes, and performance optimization.</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-indigo-400">🛠️ Management Team</h4>
+                                    <p class="mt-2"><strong>Head Management:</strong> Acts as the bridge between executives and staff, overseeing moderation/admin teams and enforcing policy.</p>
+                                    <p class="mt-1"><strong>Management:</strong> Supports Head Management and oversees daily staff operations, training, and high-priority player issues.</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-indigo-400">🛡️ Administrative Team</h4>
+                                    <p class="mt-2"><strong>Senior Admin:</strong> Experienced leaders who handle major rule violations and mentor junior staff.</p>
+                                    <p class="mt-1"><strong>Admin:</strong> Enforce server rules, handle player reports, and ensure a fair RP experience.</p>
+                                    <p class="mt-1"><strong>Junior Admin:</strong> Staff learning to handle admin responsibilities under supervision.</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-indigo-400">👮 Moderation Team</h4>
+                                    <p class="mt-2"><strong>Senior Moderator:</strong> Trusted moderators who assist Admins and supervise newer Mods.</p>
+                                    <p class="mt-1"><strong>Moderator:</strong> Maintain order in Discord and help with in-game support and tickets.</p>
+                                    <p class="mt-1"><strong>Trial Moderator:</strong> Staff in training, learning to support the community under supervision.</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-bold text-indigo-400">💬 Support Team</h4>
+                                    <p class="mt-2"><strong>Discord Support:</strong> Assist with community needs, answer common questions, and guide players, but are not moderators or enforcers.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -262,29 +289,45 @@
         let presenceInterval = null;
 
         const punishments = {
-            "Underage": "Permanent Ban (Appeal)",
+            "Underage (18+ City)": "Permanent Ban (Appeal)",
             "Sexual Harassment": "Permanent Ban (Appeal)",
             "Hard R / Homophobic / Transphobic": "Permanent Ban",
             "Staff Impersonation": "Permanent Ban (With Appeal)",
-            "AFK To Gain Benefits": "30 day ban",
+            "AFK To Gain Benefits (e.g., crafting)": "30 day ban",
             "Major Exploiting (e.g., duping)": "30 day - Permanent Ban",
+            "Having PD/EMS Equipment (1st)": "300 Comserve + remove items",
+            "Having PD/EMS Equipment (2nd)": "400 Comserve + 5 points",
+            "Having PD/EMS Equipment (3rd)": "500 Comserve + 5 points",
             "RDM (1st)": "50 Community Service",
-            "RDM (2nd)": "75 coms + 5 points",
-            "RDM (3rd)": "100 coms + 5 points",
-            "VDM (1st)": "100 coms",
-            "VDM (2nd)": "150 coms + 5 points",
-            "VDM (3rd)": "200 coms + 5 points",
-            "Mass RDM/VDM (1st)": "100 coms + 5 points",
+            "RDM (2nd)": "75 Comserve + 5 points",
+            "RDM (3rd)": "100 Comserve + 5 points",
+            "VDM (1st)": "100 Comserve",
+            "VDM (2nd)": "150 Comserve + 5 points",
+            "VDM (3rd)": "200 Comserve + 5 points",
+            "Mass RDM/VDM (1st)": "100 Comserve + 5 points",
+            "Mass RDM/VDM (2nd)": "200 Comserve + 10 points",
             "Power Gaming (1st)": "Warning",
-            "Power Gaming (2nd)": "30 coms + 5 points",
-            "Combat Log / F8 Quit (1st)": "50 coms + Pocket wipe",
-            "New Life Rule / NLR (1st)": "10 coms",
-            "Fail RP (1st)": "20 coms",
+            "Power Gaming (2nd)": "30 Comserve + 5 points",
+            "Combat Log / F8 Quit (1st)": "50 Comserve + Pocket wipe",
+            "Combat Log / F8 Quit (2nd)": "100 Comserve + Pocket wipe + 5 points",
+            "New Life Rule / NLR (1st)": "10 Comserve",
+            "New Life Rule / NLR (2nd)": "50 Comserve + 5 points",
+            "Minor Exploiting (e.g., wall glitch) (1st)": "30 Comserve",
+            "Fail RP (1st)": "20 Comserve",
+            "Fail RP (2nd)": "50 Comserve + 5 points",
             "Cop Baiting (1st)": "20 Community Service",
+            "Cop Baiting (2nd)": "40 Community Service + 5 points",
             "Green Zone Combat (1st)": "50 Community Service",
             "Meta Gaming (1st)": "Warning",
+            "Meta Gaming (2nd)": "30 Comserve + 5 points",
+            "Scamming (1st)": "30 Comserve + return items",
+            "PD/EMS/DOJ Impersonation (1st)": "40 Community Service",
+            "Abusing Jobs (1st)": "20 Comserve",
             "Not Valuing Life / NVL (1st)": "30 Community Service",
-            "Third Partying (1st)": "50 Community Service + Wipe Inventory if they robbed"
+            "Third Partying (1st)": "50 Community Service + Wipe Inventory if they robbed",
+            "Rule of 6 (1st)": "100 Comserve",
+            "Police/EMS/DOJ Corruption": "500 Comserve + character wipe",
+            "Robbing Pets (1st)": "Warning & Take Item Away"
         };
 
         const ticketResponses = {
