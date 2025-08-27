@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nightlife Staff - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics in dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937; /* bg-gray-800 */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5; /* bg-indigo-600 */
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #4338ca; /* bg-indigo-700 */
+            }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <!-- Main Container -->
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-gray-800 p-5 flex flex-col justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-400 mb-10">Nightlife Staff</h1>
+                <ul>
+                    <li class="mb-4">
+                        <a href="#" class="flex items-center p-2 text-base font-normal text-white rounded-lg bg-gray-700">
+                            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                            <span class="ml-3">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="roster.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                            <span class="ml-3">Staff Roster</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="playermanagement.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="notebook-pen" class="w-6 h-6"></i>
+                            <span class="ml-3">Player Management</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="AI.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                            <span class="ml-3">AI Analysis</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <button id="logout-btn" class="w-full flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-red-600 transition-colors">
+                    <i data-lucide="log-out" class="w-6 h-6"></i>
+                    <span class="ml-3">Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-10 overflow-auto">
+            <div id="loader" class="flex justify-center items-center h-full">
+                <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+
+            <div id="dashboard-content" class="hidden">
+                <h2 class="text-3xl font-bold mb-8">Admin Dashboard</h2>
+
+                <!-- Pending Access Requests -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg mb-8">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center"><i data-lucide="user-check" class="mr-2"></i>Pending Access Requests</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-400">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Email</th>
+                                    <th scope="col" class="px-6 py-3">Requested At</th>
+                                    <th scope="col" class="px-6 py-3 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-users-table">
+                                <tr id="no-pending-requests" class="bg-gray-800 border-b border-gray-700">
+                                    <td colspan="3" class="px-6 py-4 text-center">No pending requests.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Online Staff -->
+                <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 flex items-center"><i data-lucide="wifi" class="mr-2"></i>Online Staff</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-400">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3">Staff Member</th>
+                                    <th scope="col" class="px-6 py-3">Current Page</th>
+                                    <th scope="col" class="px-6 py-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="online-staff-table">
+                                <tr id="no-online-staff" class="bg-gray-800 border-b border-gray-700">
+                                    <td colspan="3" class="px-6 py-4 text-center">No staff members are currently online.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Role Selection Modal -->
+    <div id="role-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+        <div class="bg-gray-800 rounded-lg p-8 max-w-sm w-full shadow-xl">
+            <h3 class="text-lg font-medium leading-6 text-white mb-4">Assign Role</h3>
+            <p class="text-sm text-gray-400 mb-4">Select a role for the user before approving their access.</p>
+            <div>
+                <label for="roles" class="block text-sm font-medium text-gray-300">Role</label>
+                <select id="roles" name="roles" class="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-gray-700 border-gray-600 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md text-white">
+                    <option>Trial Moderator</option>
+                    <option>Moderator</option>
+                    <option>Sr. Moderator</option>
+                    <option>Jr. Admin</option>
+                    <option>Admin</option>
+                    <option>Sr. Admin</option>
+                    <option>Management</option>
+                    <option>Head Management</option>
+                    <option>Discord Support</option>
+                </select>
+            </div>
+            <div class="mt-6 flex justify-end space-x-4">
+                <button type="button" id="cancel-role-btn" class="inline-flex justify-center rounded-md border border-gray-600 px-4 py-2 bg-gray-700 text-sm font-medium text-gray-300 hover:bg-gray-600">Cancel</button>
+                <button type="button" id="confirm-role-btn" class="inline-flex justify-center rounded-md border border-transparent px-4 py-2 bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700">Confirm & Approve</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, onSnapshot, setDoc, deleteDoc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC3X0D6daim4gKQhBp4S2hoBK8w4EgWRg",
+            authDomain: "nightlife-staff.firebaseapp.com",
+            projectId: "nightlife-staff",
+            storageBucket: "nightlife-staff.appspot.com",
+            messagingSenderId: "1092255472588",
+            appId: "1:1092255472588:web:a9c2c3e3c6b2b0f2c3d4e5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const pendingUsersTable = document.getElementById('pending-users-table');
+        const onlineStaffTable = document.getElementById('online-staff-table');
+        const noPendingRequestsRow = document.getElementById('no-pending-requests');
+        const noOnlineStaffRow = document.getElementById('no-online-staff');
+        const logoutBtn = document.getElementById('logout-btn');
+        const roleModal = document.getElementById('role-modal');
+        const cancelRoleBtn = document.getElementById('cancel-role-btn');
+        const confirmRoleBtn = document.getElementById('confirm-role-btn');
+        const rolesSelect = document.getElementById('roles');
+
+        let currentUserForApproval = null;
+        let presenceInterval = null;
+
+        // --- Authentication and Authorization ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists() && userDocSnap.data().role === 'Head Management') {
+                    const currentUser = { uid: user.uid, ...userDocSnap.data() };
+                    loader.classList.add('hidden');
+                    dashboardContent.classList.remove('hidden');
+                    listenForPendingUsers();
+                    listenForOnlineStaff();
+                    setupPresence(currentUser);
+                } else {
+                    window.location.href = '/';
+                }
+            } else {
+                window.location.href = '/';
+            }
+        });
+
+        // --- Presence System ---
+        function setupPresence(user) {
+            const presenceDocRef = doc(db, "presence", user.uid);
+
+            // Set initial presence
+            setDoc(presenceDocRef, {
+                email: user.email,
+                status: 'online',
+                currentPage: document.title,
+                lastSeen: serverTimestamp()
+            });
+
+            // Update presence every 60 seconds
+            presenceInterval = setInterval(() => {
+                setDoc(presenceDocRef, { lastSeen: serverTimestamp() }, { merge: true });
+            }, 60000);
+
+            // Set status to offline on disconnect (best effort)
+            window.addEventListener('beforeunload', () => {
+                clearInterval(presenceInterval);
+                setDoc(presenceDocRef, { status: 'offline', lastSeen: serverTimestamp() }, { merge: true });
+            });
+        }
+
+        function listenForOnlineStaff() {
+            const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
+            const q = query(collection(db, "presence"),
+                where("status", "==", "online"),
+                where("lastSeen", ">", twoMinutesAgo)
+            );
+
+            onSnapshot(q, (snapshot) => {
+                onlineStaffTable.innerHTML = '';
+                if (snapshot.empty) {
+                    onlineStaffTable.appendChild(noOnlineStaffRow);
+                } else {
+                    snapshot.forEach(doc => {
+                        const staff = doc.data();
+                        const row = document.createElement('tr');
+                        row.className = 'bg-gray-800 border-b border-gray-700';
+                        row.innerHTML = `
+                                <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${staff.email}</td>
+                                <td class="px-6 py-4">${staff.currentPage}</td>
+                                <td class="px-6 py-4"><span class="flex items-center"><div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> Online</span></td>
+                            `;
+                        onlineStaffTable.appendChild(row);
+                    });
+                }
+            });
+        }
+
+
+        // --- Firestore Listeners ---
+        function listenForPendingUsers() {
+            const q = query(collection(db, "pendingUsers"), where("status", "==", "pending"));
+            onSnapshot(q, (querySnapshot) => {
+                pendingUsersTable.innerHTML = ''; // Clear table
+                if (querySnapshot.empty) {
+                    pendingUsersTable.appendChild(noPendingRequestsRow);
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const userData = doc.data();
+                        const row = document.createElement('tr');
+                        row.className = 'bg-gray-800 border-b border-gray-700 hover:bg-gray-700';
+                        row.innerHTML = `
+                                <td class="px-6 py-4 font-medium text-white whitespace-nowrap">${userData.email}</td>
+                                <td class="px-6 py-4">${new Date(userData.requestedAt.seconds * 1000).toLocaleString()}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <button data-uid="${userData.uid}" data-docid="${doc.id}" data-email="${userData.email}" class="approve-btn font-medium text-green-500 hover:underline mr-4">Approve</button>
+                                    <button data-docid="${doc.id}" class="deny-btn font-medium text-red-500 hover:underline">Deny</button>
+                                </td>
+                            `;
+                        pendingUsersTable.appendChild(row);
+                    });
+                }
+            });
+        }
+
+        // --- User Management Functions ---
+        pendingUsersTable.addEventListener('click', (e) => {
+            if (e.target.classList.contains('approve-btn')) {
+                const uid = e.target.dataset.uid;
+                const docId = e.target.dataset.docid;
+                const email = e.target.dataset.email;
+                currentUserForApproval = { uid, docId, email };
+                roleModal.classList.remove('hidden');
+            }
+            if (e.target.classList.contains('deny-btn')) {
+                if (confirm('Are you sure you want to deny this user?')) {
+                    denyUser(e.target.dataset.docid);
+                }
+            }
+        });
+
+        async function approveUser(user, role) {
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    role: role,
+                    createdAt: new Date()
+                });
+                await deleteDoc(doc(db, "pendingUsers", user.docId));
+            } catch (error) {
+                console.error("Error approving user: ", error);
+            }
+            closeModal();
+        }
+
+        async function denyUser(docId) {
+            try {
+                await deleteDoc(doc(db, "pendingUsers", docId));
+            } catch (error) {
+                console.error("Error denying user: ", error);
+            }
+        }
+
+        // --- Modal Logic ---
+        function closeModal() {
+            currentUserForApproval = null;
+            roleModal.classList.add('hidden');
+        }
+        confirmRoleBtn.addEventListener('click', () => {
+            if (currentUserForApproval) {
+                approveUser(currentUserForApproval, rolesSelect.value);
+            }
+        });
+        cancelRoleBtn.addEventListener('click', closeModal);
+
+        // --- Logout ---
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth); // Presence listener will handle setting status to offline
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

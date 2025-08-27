@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nightlife Staff - AI Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: #4338ca;
+            }
+        /* Style for the AI response to format markdown */
+        .prose {
+            color: #d1d5db;
+        }
+
+            .prose h1, .prose h2, .prose h3, .prose h4 {
+                color: #a5b4fc;
+            }
+
+            .prose strong {
+                color: #c7d2fe;
+            }
+
+            .prose ul > li::before {
+                background-color: #818cf8;
+            }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <!-- Main Container -->
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <nav class="w-64 bg-gray-800 p-5 flex flex-col justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-400 mb-10">Nightlife Staff</h1>
+                <ul>
+                    <li class="mb-4">
+                        <a href="admin.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                            <span class="ml-3">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="roster.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="shield" class="w-6 h-6"></i>
+                            <span class="ml-3">Staff Roster</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="playermanagement.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-gray-700">
+                            <i data-lucide="notebook-pen" class="w-6 h-6"></i>
+                            <span class="ml-3">Player Management</span>
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="AIAnalysis.html" class="flex items-center p-2 text-base font-normal text-white rounded-lg bg-gray-700">
+                            <i data-lucide="brain-circuit" class="w-6 h-6"></i>
+                            <span class="ml-3">AI Analysis</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <button id="logout-btn" class="w-full flex items-center p-2 text-base font-normal text-white rounded-lg hover:bg-red-600 transition-colors">
+                    <i data-lucide="log-out" class="w-6 h-6"></i>
+                    <span class="ml-3">Logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-10 overflow-auto">
+            <div id="loader" class="flex justify-center items-center h-full">
+                <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+
+            <div id="main-content" class="hidden">
+                <h2 class="text-3xl font-bold mb-8">AI-Powered Player Analysis</h2>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Left Column: Player Selection & Notes -->
+                    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                        <div class="mb-6">
+                            <label for="player-select" class="block text-sm font-medium text-gray-300 mb-2">1. Select a Player to Analyze</label>
+                            <select id="player-select" class="w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                <option>-- Select a Player --</option>
+                            </select>
+                        </div>
+
+                        <h3 class="text-lg font-semibold mb-4 flex items-center"><i data-lucide="history" class="mr-2"></i>Player Note History</h3>
+                        <div id="player-notes-container" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                            <p id="select-player-prompt" class="text-center text-gray-500 py-10">Please select a player to view their notes.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: AI Suggestions -->
+                    <div class="bg-gray-800 rounded-2xl p-6 shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold flex items-center"><i data-lucide="sparkles" class="mr-2 text-yellow-400"></i>AI Suggestions</h3>
+                            <button id="get-ai-suggestion-btn" disabled class="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed">
+                                Get AI Suggestion
+                            </button>
+                        </div>
+                        <div id="ai-suggestion-container" class="bg-gray-900/50 p-4 rounded-lg min-h-[60vh] overflow-y-auto prose">
+                            <p id="ai-initial-message" class="text-gray-400">The AI's analysis and suggestions will appear here after you select a player and click the button.</p>
+                            <div id="ai-loader" class="hidden flex flex-col items-center justify-center text-center h-full">
+                                <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-400 mb-4"></div>
+                                <p>Analyzing player notes... Please wait.</p>
+                            </div>
+                            <div id="ai-response-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, getDoc, onSnapshot, query, orderBy, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // For Markdown-it
+        import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC3X0D6daim4gKQhBp4S2hoBK8w4EgWRg",
+            authDomain: "nightlife-staff.firebaseapp.com",
+            projectId: "nightlife-staff",
+            storageBucket: "nightlife-staff.appspot.com",
+            messagingSenderId: "1092255472588",
+            appId: "1:1092255472588:web:a9c2c3e3c6b2b0f2c3d4e5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const mainContent = document.getElementById('main-content');
+        const logoutBtn = document.getElementById('logout-btn');
+        const playerSelect = document.getElementById('player-select');
+        const playerNotesContainer = document.getElementById('player-notes-container');
+        const getAiSuggestionBtn = document.getElementById('get-ai-suggestion-btn');
+        const aiInitialMessage = document.getElementById('ai-initial-message');
+        const aiLoader = document.getElementById('ai-loader');
+        const aiResponseContent = document.getElementById('ai-response-content');
+
+        let allNotes = [];
+        let presenceInterval = null;
+
+        // --- Authentication & Presence ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const currentUser = { uid: user.uid, ...userDocSnap.data() };
+                    loader.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    fetchAllNotes();
+                    setupPresence(currentUser); // <-- ADDED
+                } else {
+                    window.location.href = '/';
+                }
+            } else {
+                window.location.href = '/';
+            }
+        });
+
+        // --- Presence System (ADD THIS ENTIRE FUNCTION) ---
+        function setupPresence(user) {
+            const presenceDocRef = doc(db, "presence", user.uid);
+            setDoc(presenceDocRef, {
+                email: user.email,
+                status: 'online',
+                currentPage: document.title,
+                lastSeen: serverTimestamp()
+            });
+            presenceInterval = setInterval(() => {
+                setDoc(presenceDocRef, { lastSeen: serverTimestamp() }, { merge: true });
+            }, 60000);
+            window.addEventListener('beforeunload', () => {
+                clearInterval(presenceInterval);
+                setDoc(presenceDocRef, { status: 'offline', lastSeen: serverTimestamp() }, { merge: true });
+            });
+        }
+
+        // --- Data Fetching and Display ---
+        function fetchAllNotes() {
+            const notesRef = collection(db, "playerNotes");
+            const q = query(notesRef, orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                allNotes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                populatePlayerSelect();
+                if (playerSelect.value !== '-- Select a Player --') {
+                    displayNotesForPlayer(playerSelect.value);
+                }
+            });
+        }
+
+        function populatePlayerSelect() {
+            const playerNames = [...new Set(allNotes.map(note => note.playerName))];
+            playerNames.sort();
+            const currentSelection = playerSelect.value;
+            playerSelect.innerHTML = '<option>-- Select a Player --</option>';
+            playerNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                playerSelect.appendChild(option);
+            });
+            if (playerNames.includes(currentSelection)) {
+                playerSelect.value = currentSelection;
+            }
+        }
+
+        playerSelect.addEventListener('change', () => {
+            const selectedPlayer = playerSelect.value;
+            aiResponseContent.innerHTML = '';
+            aiInitialMessage.classList.remove('hidden');
+            if (selectedPlayer !== '-- Select a Player --') {
+                displayNotesForPlayer(selectedPlayer);
+                getAiSuggestionBtn.disabled = false;
+            } else {
+                playerNotesContainer.innerHTML = `<p id="select-player-prompt" class="text-center text-gray-500 py-10">Please select a player to view their notes.</p>`;
+                getAiSuggestionBtn.disabled = true;
+            }
+        });
+
+        function displayNotesForPlayer(playerName) {
+            const notesForPlayer = allNotes.filter(note => note.playerName === playerName);
+            playerNotesContainer.innerHTML = '';
+            if (notesForPlayer.length === 0) {
+                playerNotesContainer.innerHTML = `<p class="text-center text-gray-500 py-10">No notes found for ${playerName}.</p>`;
+                getAiSuggestionBtn.disabled = true;
+                return;
+            }
+            notesForPlayer.forEach(note => {
+                const noteEl = document.createElement('div');
+                noteEl.className = 'bg-gray-700/50 p-4 rounded-lg';
+                noteEl.innerHTML = `
+                        <h4 class="font-semibold text-indigo-300">${note.noteTitle}</h4>
+                        <p class="text-sm text-gray-300 my-1">${note.noteContent}</p>
+                        <p class="text-xs text-gray-500 mt-2">By ${note.authorEmail} on ${new Date(note.createdAt.seconds * 1000).toLocaleDateString()}</p>
+                    `;
+                playerNotesContainer.appendChild(noteEl);
+            });
+            getAiSuggestionBtn.disabled = false;
+        }
+
+        // --- Gemini AI Integration ---
+        getAiSuggestionBtn.addEventListener('click', async () => {
+            const selectedPlayer = playerSelect.value;
+            if (!selectedPlayer || selectedPlayer === '-- Select a Player --') return;
+            const notesForPlayer = allNotes.filter(note => note.playerName === selectedPlayer);
+            if (notesForPlayer.length === 0) return;
+
+            aiInitialMessage.classList.add('hidden');
+            aiResponseContent.innerHTML = '';
+            aiLoader.classList.remove('hidden');
+            getAiSuggestionBtn.disabled = true;
+
+            const formattedNotes = notesForPlayer.map(note => `Note Title: ${note.noteTitle}\nNote Content: ${note.noteContent}\nAuthor: ${note.authorEmail}\nDate: ${new Date(note.createdAt.seconds * 1000).toISOString()}\n---`).join('\n\n');
+            const systemPrompt = `You are an expert FiveM staff manager. Your task is to analyze a collection of staff notes about a player and provide clear, actionable suggestions. Based on the notes provided, suggest appropriate administrative actions (like warnings, kicks, temporary bans, or permanent bans) and provide a template for a staff member to use when responding to a related player ticket. Your response should be structured in Markdown format with two main sections: "Suggested Actions" and "Ticket Response Template". Be professional, fair, and consider the severity and frequency of the incidents.`;
+            const userQuery = `Analyze the following notes for the player "${selectedPlayer}" and provide your suggestions:\n\n${formattedNotes}`;
+
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                };
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    aiResponseContent.innerHTML = marked(text);
+                } else {
+                    aiResponseContent.textContent = "Could not get a valid response from the AI.";
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                aiResponseContent.textContent = "An error occurred while trying to get AI suggestions.";
+            } finally {
+                aiLoader.classList.add('hidden');
+                getAiSuggestionBtn.disabled = false;
+            }
+        });
+
+        // --- Logout ---
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth);
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

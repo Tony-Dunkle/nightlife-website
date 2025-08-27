@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nightlife Staff - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md p-8 space-y-8 bg-gray-800 rounded-2xl shadow-lg">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-indigo-400">Nightlife Staff</h1>
+            <p class="mt-2 text-gray-400">Login or Request Access</p>
+        </div>
+
+        <!-- Unified Form Container -->
+        <div id="form-container">
+            <!-- Login Form -->
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label for="login-email" class="text-sm font-medium text-gray-300">Email</label>
+                    <div class="mt-1 relative">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input id="login-email" name="email" type="email" autocomplete="email" required class="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="login-password" class="text-sm font-medium text-gray-300">Password</label>
+                    <div class="mt-1 relative">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input id="login-password" name="password" type="password" autocomplete="current-password" required class="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                        Sign in
+                    </button>
+                </div>
+            </form>
+
+            <!-- Signup Request Form -->
+            <form id="signup-form" class="hidden space-y-6">
+                <div>
+                    <label for="signup-email" class="text-sm font-medium text-gray-300">Email</label>
+                    <div class="mt-1 relative">
+                        <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input id="signup-email" name="email" type="email" autocomplete="email" required class="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label for="signup-password" class="text-sm font-medium text-gray-300">Password</label>
+                    <div class="mt-1 relative">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input id="signup-password" name="password" type="password" autocomplete="new-password" required class="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <label for="signup-confirm-password" class="text-sm font-medium text-gray-300">Confirm Password</label>
+                    <div class="mt-1 relative">
+                        <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <input id="signup-confirm-password" name="confirm-password" type="password" autocomplete="new-password" required class="w-full pl-10 pr-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                        Request Access
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="text-center text-sm">
+            <a href="#" id="toggle-form" class="font-medium text-indigo-400 hover:text-indigo-300">
+                Don't have an account? Request Access
+            </a>
+        </div>
+
+        <!-- Message Box -->
+        <div id="message-box" class="hidden p-4 rounded-md text-sm"></div>
+
+    </div>
+
+    <script type="module">
+        // Firebase Imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            onAuthStateChanged,
+            setPersistence,
+            browserLocalPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDC3X0D6daim4gKQhBp4S2hoBK8w4EgWRg",
+            authDomain: "nightlife-staff.firebaseapp.com",
+            projectId: "nightlife-staff",
+            storageBucket: "nightlife-staff.appspot.com",
+            messagingSenderId: "1092255472588",
+            appId: "1:1092255472588:web:a9c2c3e3c6b2b0f2c3d4e5"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Set auth persistence
+        setPersistence(auth, browserLocalPersistence);
+
+        // DOM Elements
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const toggleFormLink = document.getElementById('toggle-form');
+        const messageBox = document.getElementById('message-box');
+
+        // Function to display messages
+        const showMessage = (message, type = 'success') => {
+            messageBox.textContent = message;
+            messageBox.classList.remove('hidden', 'bg-green-500', 'bg-red-500', 'text-white');
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-500', 'text-white');
+            } else {
+                messageBox.classList.add('bg-red-500', 'text-white');
+            }
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 5000);
+        };
+
+        // Toggle between login and signup forms
+        toggleFormLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.toggle('hidden');
+            signupForm.classList.toggle('hidden');
+            if (signupForm.classList.contains('hidden')) {
+                toggleFormLink.textContent = 'Don\'t have an account? Request Access';
+            } else {
+                toggleFormLink.textContent = 'Already have an account? Sign In';
+            }
+        });
+
+        // Login Form Submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                const userDocRef = doc(db, "users", user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    // Redirect to the admin dashboard after a short delay
+                    setTimeout(() => {
+                        window.location.href = 'admin.html'; // <-- FIXED: This line now redirects
+                    }, 1500);
+                } else {
+                    await auth.signOut();
+                    showMessage('Your account is pending approval or has been rejected.', 'error');
+                }
+
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Signup Request Form Submission
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = signupForm.email.value;
+            const password = signupForm.password.value;
+            const confirmPassword = signupForm['confirm-password'].value;
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match.', 'error');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await addDoc(collection(db, "pendingUsers"), {
+                    uid: user.uid,
+                    email: email,
+                    status: "pending",
+                    requestedAt: new Date()
+                });
+
+                await auth.signOut();
+
+                showMessage('Your access request has been submitted. An administrator will review it shortly.', 'success');
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                toggleFormLink.textContent = 'Don\'t have an account? Request Access';
+
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        });
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // If a user is already logged in, try to redirect them immediately
+                const userDocRef = doc(db, "users", user.uid);
+                getDoc(userDocRef).then(userDocSnap => {
+                    if (userDocSnap.exists()) {
+                        window.location.href = 'admin.html';
+                    }
+                });
+            }
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+    </script>
+</body>
+</html>
